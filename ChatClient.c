@@ -11,6 +11,7 @@
 #include<netdb.h>
 #include<string.h>
 #include<stdlib.h>
+#include<stdbool.h>
 #define MAX 80
 #define PORT 43454
 #define SA struct sockaddr
@@ -20,7 +21,7 @@ void func(int sockfd)
 	char nameBuff[MAX];
 	char otherNameBuff[MAX];
 	int n;
-
+	bool closed = false;
 	
 	bzero(nameBuff,sizeof(nameBuff));
 	printf("Enter a user name: ");
@@ -28,7 +29,7 @@ void func(int sockfd)
 	write(sockfd,nameBuff,sizeof(nameBuff));
 	bzero(otherNameBuff,sizeof(otherNameBuff));
 	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
-	for(;;)
+	for(;(strncmp(buff,"#q",2))!=0;)
 	{
 		bzero(buff,sizeof(buff));
 		printf("\n$%s: ", nameBuff);
