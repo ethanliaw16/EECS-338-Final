@@ -17,20 +17,34 @@
 void func(int sockfd)
 {
 	char buff[MAX];
+	char nameBuff[MAX];
+	char otherNameBuff[MAX];
+	
 	int n;
+
+	
+	bzero(nameBuff,sizeof(nameBuff));
+	printf("Enter a user name: ");
+	scanf("%s", nameBuff);
+	
+	bzero(otherNameBuff,MAX);
+	write(sockfd,nameBuff,sizeof(nameBuff));
+	
+	bzero(otherNameBuff,MAX);
+	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
 	
 	for(;;)
 	{
 		bzero(buff,MAX);
 		read(sockfd,buff,sizeof(buff));
-		printf("\n$user2: %s\n$user1: ",buff);
+		printf("\n$%s: %s\n$%s: ",otherNameBuff, buff, nameBuff);
 		bzero(buff,MAX);
 		n=0;
 		while((buff[n++]=getchar())!='\n');
 		write(sockfd,buff,sizeof(buff));
 		if(strncmp("#q",buff,2)==0)
 		{
-			printf("Server Exit...\n");
+			printf("The connection has been closed.\n");
 			break;
 		}
 	}
