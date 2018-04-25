@@ -20,7 +20,7 @@ void func(int sockfd)
 	char buff[MAX];
 	char nameBuff[MAX];
 	char otherNameBuff[MAX];
-	
+	char otherBuff[MAX];
 	int n;
 
 	
@@ -34,10 +34,16 @@ void func(int sockfd)
 	bzero(otherNameBuff,MAX);
 	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
 	
-	for(;;)
+	for(;strncmp("#q",buff,2)!=0 && strncmp("#q",otherBuff,2)!=0;)
 	{
 		bzero(buff,MAX);
+		bzero(otherBuff, MAX);
 		read(sockfd,buff,sizeof(buff));
+		
+		int i;
+		for(i = 0; i < MAX; i++)
+			otherBuff[i] = buff[i];
+		
 		printf("\n$%s: %s\n$%s: ",otherNameBuff, buff, nameBuff);
 		bzero(buff,MAX);
 		n=0;
@@ -45,10 +51,11 @@ void func(int sockfd)
 		write(sockfd,buff,sizeof(buff));
 		if(strncmp("#q",buff,2)==0)
 		{
-			printf("The connection has been closed.\n");
-			break;
+			
+			//break;
 		}
 	}
+	printf("The connection has been closed.\n");
 }
 
 int main()

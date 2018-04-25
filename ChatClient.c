@@ -41,10 +41,11 @@ void func(int sockfd)
 		printf("\n$%s: %s",otherNameBuff, buff);
 		if((strncmp(buff,"#q",2))==0)
 		{
-			printf("The connection has been closed.\n");
-			break;
+			//printf("The connection has been closed.\n");
+			//break;
 		}
 	}
+	printf("The connection has been closed.\n");
 }
 
 int main()
