@@ -15,32 +15,34 @@
 void func(int sockfd)
 {
 	pid_t pid = fork();
-	if(pid > 0)
+	if(pid > 0) //input
 	{
 		char buff[MAX];
 		int n;
 		for(;;)
 		{
+			//sleep(.25);
 			bzero(buff,sizeof(buff));
 			
 			
 			//printf("Your name is %s",nameBuff);
-			printf("\n$server: ");
+			printf("\n");
 			
 			n=0;
 			while((buff[n++]=getchar())!='\n');
 			write(sockfd,buff,sizeof(buff));
 		}
 	}
-	else if(pid == 0)
+	else if(pid == 0) //output
 	{
+		//sleep(.25);
 		char buff[MAX];
 		int n;
 		for(;;)
 		{
 			bzero(buff,sizeof(buff));	
 			read(sockfd,buff,sizeof(buff));
-			printf("\n$client: %s\n$server", buff);
+			printf("\n$client: %s", buff);
 		}
 		printf("The connection has been closed.\n");
 	}
