@@ -19,8 +19,9 @@ void func(int sockfd)
 	{
 		char buff[MAX];
 		int n;
-		for(;;)
+		for(;strncmp(buff,"#q",2)!=0;)
 		{
+			printf("\nServer input Loop");
 			//sleep(.25);
 			bzero(buff,sizeof(buff));
 			
@@ -35,10 +36,11 @@ void func(int sockfd)
 	}
 	else if(pid == 0) //output
 	{
+		printf("\nServer output Loop");
 		//sleep(.25);
 		char buff[MAX];
 		int n;
-		for(;;)
+		for(;strncmp(buff,"#q",2)!=0;)
 		{
 			bzero(buff,sizeof(buff));	
 			read(sockfd,buff,sizeof(buff));
