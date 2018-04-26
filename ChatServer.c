@@ -11,12 +11,16 @@
 #include<stdlib.h>
 #include<string.h>
 #include<stdbool.h>
+#include <time.h>
 #define MAX 80
 #define PORT 43454
 #define SA struct sockaddr
 
 void func(int sockfd)
 {
+	time_t mytime;
+	char* c_time_string;
+	
 	char buff[MAX];
 	char nameBuff[MAX];
 	char otherNameBuff[MAX];
@@ -34,26 +38,33 @@ void func(int sockfd)
 	bzero(otherNameBuff,MAX);
 	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
 	
+	printf("You are connected with %s.", otherNameBuff);
+	
 	for(;strncmp("#q",buff,2)!=0 && strncmp("#q",otherBuff,2)!=0;)
 	{
 		bzero(buff,MAX);
 		bzero(otherBuff, MAX);
 		read(sockfd,buff,sizeof(buff));
-		
+	
+		//This is to get the text sent by the client
 		int i;
 		for(i = 0; i < MAX; i++)
 			otherBuff[i] = buff[i];
-		
-		printf("\n$%s: %s\n$%s: ",otherNameBuff, buff, nameBuff);
+		mytime = time(NULL);
+		c_time_string = ctime(&mytime);
+		//printf("the string is \ n");
+		printf("\n$%s: %s -sent %s \n$%s: ",otherNameBuff, buff, c_time_string, nameBuff);
+		//printf("\n$%s: %s\n$%s: ",otherNameBuff, buff, nameBuff);
 		bzero(buff,MAX);
-		n=0;
-		while((buff[n++]=getchar())!='\n');
+			n=0;
+			while((buff[n++]=getchar())!='\n');
 		write(sockfd,buff,sizeof(buff));
 		if(strncmp("#q",buff,2)==0)
 		{
 			
 			//break;
-		}
+		}	
+		
 	}
 	printf("The connection has been closed.\n");
 }

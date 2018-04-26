@@ -12,11 +12,15 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include <time.h>
 #define MAX 80
 #define PORT 43454
 #define SA struct sockaddr
 void func(int sockfd)
 {
+	time_t mytime;
+	char* c_time_string;
+	
 	char buff[MAX];
 	char nameBuff[MAX];
 	char otherNameBuff[MAX];
@@ -29,21 +33,30 @@ void func(int sockfd)
 	write(sockfd,nameBuff,sizeof(nameBuff));
 	bzero(otherNameBuff,sizeof(otherNameBuff));
 	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
+	printf("You are connected with %s.", otherNameBuff);
 	for(;(strncmp(buff,"#q",2))!=0;)
 	{
-		bzero(buff,sizeof(buff));
-		printf("\n$%s: ", nameBuff);
-		n=0;
-		while((buff[n++]=getchar())!='\n');
-		write(sockfd,buff,sizeof(buff));
-		bzero(buff,sizeof(buff));
-		read(sockfd,buff,sizeof(buff));
-		printf("\n$%s: %s",otherNameBuff, buff);
-		if((strncmp(buff,"#q",2))==0)
-		{
-			//printf("The connection has been closed.\n");
-			//break;
-		}
+		
+	bzero(buff,sizeof(buff));
+		
+		
+	//printf("Your name is %s",nameBuff);
+	printf("\n$%s: ", nameBuff);
+	n=0;
+	while((buff[n++]=getchar())!='\n');
+	write(sockfd,buff,sizeof(buff));
+	bzero(buff,sizeof(buff));
+	read(sockfd,buff,sizeof(buff));
+	mytime = time(NULL);
+	c_time_string = ctime(&mytime);
+	printf("\n$%s: %s -sent %s",otherNameBuff, buff, c_time_string);
+	if((strncmp(buff,"#q",2))==0)
+	{
+		//printf("The connection has been closed.\n");
+		//break;
+	}
+		
+		
 	}
 	printf("The connection has been closed.\n");
 }
@@ -76,4 +89,5 @@ int main()
 	
 	func(sockfd);
 	close(sockfd);
+	//printf("The connection has been closed.\n");
 }
