@@ -29,7 +29,7 @@ void func(int sockfd)
 				
 
 			read(sockfd,buff,sizeof(buff));
-			printf("\n$server: %s", buff);
+			printf("\n$server: %s\n$client: ", buff);
 		}
 		printf("The connection has been closed.\n");
 	}

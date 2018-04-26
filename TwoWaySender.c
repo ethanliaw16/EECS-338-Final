@@ -40,7 +40,7 @@ void func(int sockfd)
 		{
 			bzero(buff,sizeof(buff));	
 			read(sockfd,buff,sizeof(buff));
-			printf("\n$client: %s", buff);
+			printf("\n$client: %s\n$server", buff);
 		}
 		printf("The connection has been closed.\n");
 	}
