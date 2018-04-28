@@ -1,5 +1,5 @@
 //A program to implement two-way socket communication using fork calls
-#include<semaphore.h>
+
 #include<stdio.h>
 #include<netinet/in.h>
 #include<sys/types.h>

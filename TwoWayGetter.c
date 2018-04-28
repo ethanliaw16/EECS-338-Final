@@ -1,6 +1,5 @@
 //Client program for two-way socket communication
 
-#include<semaphore.h>
 #include<stdio.h>
 #include<netinet/in.h>
 #include<sys/types.h>
