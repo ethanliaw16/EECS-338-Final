@@ -1,53 +1,98 @@
 //A program to implement two-way socket communication using fork calls
+#include<semaphore.h>
 #include<stdio.h>
 #include<netinet/in.h>
 #include<sys/types.h>
 #include<sys/socket.h>
+#include<signal.h>
 #include<netdb.h>
 #include<stdlib.h>
 #include<string.h>
 #include<stdbool.h>
+#include<time.h>
 
 #define MAX 80
 #define PORT 43454
 #define SA struct sockaddr
 
+
+char buff[MAX];
+char nameBuff[MAX];
+char otherNameBuff[MAX];
+bool closed;
+
+void getNames(int sockfd)
+{
+	printf("Enter a username.  ");
+	scanf("%s", nameBuff);
+
+	bzero(otherNameBuff,MAX);
+	write(sockfd,nameBuff,sizeof(nameBuff));
+
+	bzero(otherNameBuff,MAX);
+	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
+	printf("You are connected with %s.", otherNameBuff);
+}
+
 void func(int sockfd)
 {
+	closed = false;
+	int n;
+
+	//printf("You are connected with %s.", otherNameBuff);
+
 	pid_t pid = fork();
 	if(pid > 0) //input
 	{
-		char buff[MAX];
-		int n;
-		for(;strncmp(buff,"#q",2)!=0;)
+
+		while(strncmp(buff,"#q",2)!=0 && closed == false)
 		{
-			printf("\nServer input Loop");
 			//sleep(.25);
 			bzero(buff,sizeof(buff));
-			
-			
+
+			if(closed == true)
+				break;
 			//printf("Your name is %s",nameBuff);
 			printf("\n");
-			
+			if(closed == true)
+				break;
 			n=0;
 			while((buff[n++]=getchar())!='\n');
 			write(sockfd,buff,sizeof(buff));
 		}
+		closed = true;
+		close(sockfd);
+		printf("The connection has been closed by the server.");
+		kill(pid, SIGKILL);
+
 	}
 	else if(pid == 0) //output
 	{
-		printf("\nServer output Loop");
-		//sleep(.25);
-		char buff[MAX];
-		int n;
-		for(;strncmp(buff,"#q",2)!=0;)
+
+
+		time_t mytime;
+		char* c_time_string;
+
+		while(strncmp(buff,"#q",2)!=0 && closed == false)
 		{
-			bzero(buff,sizeof(buff));	
+			bzero(buff,sizeof(buff));
 			read(sockfd,buff,sizeof(buff));
-			printf("\n$client: %s", buff);
+			mytime = time(NULL);
+			c_time_string = ctime(&mytime);
+			if(strncmp("",buff,MAX) != 0)
+				printf("\n$%s: %s -recieved %s",otherNameBuff, buff, c_time_string);
+			if(strncmp(buff,"#q",2)==0)
+			{
+				printf("Detected client closed connection.");
+				closed = true;
+			}
+
 		}
-		printf("The connection has been closed.\n");
+		close(sockfd);
+		printf("The connection has been closed by the client.\n");
+		kill(pid, SIGKILL);
 	}
+	close(sockfd);
 }
 
 int main()
@@ -89,9 +134,9 @@ int main()
 	}
 	else
 		printf("server acccept the client...\n");
-	
+
 	//printf("Instant Messaging Program\n");
-	
+	getNames(connfd);
 	func(connfd);
-	close(sockfd);
+	//close(sockfd);
 }
