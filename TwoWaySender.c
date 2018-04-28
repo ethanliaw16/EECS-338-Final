@@ -83,7 +83,7 @@ void func(int sockfd)
 				printf("\n$%s: %s -recieved %s",otherNameBuff, buff, c_time_string);
 			if(strncmp(buff,"#q",2)==0)
 			{
-				printf("Detected client closed connection.");
+				//printf("Detected client closed connection.");
 				closed = true;
 			}
 
