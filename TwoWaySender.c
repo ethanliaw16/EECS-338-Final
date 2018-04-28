@@ -44,7 +44,8 @@ void func(int sockfd)
 	pid_t pid = fork();
 	if(pid > 0) //input
 	{
-
+		time_t mytime;
+		char* c_time_string;
 		while(strncmp(buff,"#q",2)!=0 && closed == false)
 		{
 			//sleep(.25);
@@ -53,17 +54,20 @@ void func(int sockfd)
 			if(closed == true)
 				break;
 			//printf("Your name is %s",nameBuff);
-			printf("\n");
+			//printf("\n");
 			if(closed == true)
 				break;
 			n=0;
 			while((buff[n++]=getchar())!='\n');
 			write(sockfd,buff,sizeof(buff));
+			mytime = time(NULL);
+			c_time_string = ctime(&mytime);
+			printf("\tfrom $%s @ %s\n", nameBuff, c_time_string);
 		}
 		closed = true;
 		close(sockfd);
 		printf("The connection has been closed by the server.");
-		kill(pid, SIGKILL);
+		kill(pid, SIGTERM);
 
 	}
 	else if(pid == 0) //output
@@ -80,7 +84,7 @@ void func(int sockfd)
 			mytime = time(NULL);
 			c_time_string = ctime(&mytime);
 			if(strncmp("",buff,MAX) != 0)
-				printf("\n$%s: %s -recieved %s",otherNameBuff, buff, c_time_string);
+				printf("%s\tfrom $%s @ %s\n",buff, otherNameBuff, c_time_string);
 			if(strncmp(buff,"#q",2)==0)
 			{
 				//printf("Detected client closed connection.");
@@ -90,7 +94,7 @@ void func(int sockfd)
 		}
 		close(sockfd);
 		printf("The connection has been closed by the client.\n");
-		kill(pid, SIGKILL);
+		kill(pid, SIGTERM);
 	}
 	close(sockfd);
 }
