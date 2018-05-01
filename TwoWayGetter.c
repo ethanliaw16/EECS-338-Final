@@ -54,6 +54,7 @@ void getNames(int sockfd)
 /*  Method that contols input and output of client */
 void func(int sockfd)
 {
+	//used for iterating through the user input
 	int n;
 
 	//Call the fork
