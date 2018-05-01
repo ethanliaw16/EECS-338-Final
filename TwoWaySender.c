@@ -16,7 +16,7 @@
 #include<time.h>
 
 #define MAX 80 //Max size of the buffers
-#define PORT 43455 //Port number for connection within server and client
+#define PORT 43400 //Port number for connection within server and client
 #define SA struct sockaddr //Server address struct
 
 //Buffer to hold messages
@@ -94,7 +94,7 @@ void func(int sockfd)
 				//Special case 2
 				if(counter2 != 0)
 				{
-					printf("\tfrom $%s @ %s", nameBuff, c_time_string);
+					printf("\tfrom $%s @ %s\n", nameBuff, c_time_string);
 					fflush(stdout);
 				}
 
