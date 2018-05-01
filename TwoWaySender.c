@@ -57,8 +57,6 @@ void getNames(int sockfd)
 void func(int sockfd)
 {
 	closed = false;
-	
-	//used for iterating through the user input
 	int n;
 
 	//Call the fork
