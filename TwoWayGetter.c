@@ -1,4 +1,7 @@
-//Client program for two-way socket communication
+/*  Client Program for Two Way Socket Communication 
+	Alan Kao [ask136]
+	Ethan Liaw [exl___]
+	EECS 338 Final Project  */
 
 #include<stdio.h>
 #include<netinet/in.h>
@@ -11,96 +14,145 @@
 #include<stdbool.h>
 #include<time.h>
 
-#define MAX 80
-#define PORT 43454
-#define SA struct sockaddr
+#define MAX 80 //Max size of the buffers
+#define PORT 43455 //Port number for connection within server and client
+#define SA struct sockaddr //Server address struct
 
+//Buffer to hold messages
 char buff[MAX];
+//Buffer to hold username of client
 char nameBuff[MAX];
+//Buffer to hold username of server
 char otherNameBuff[MAX];
-bool closed;
-//sem_t username_created;
 
+/*  These counters are used to stop two special cases
+	from sending additional output. */
+int counter = 0;
+int counter2 = 0;
+
+
+/*  Method to get usernames of users, send them to the other user,
+    as well as show the current user the username of who they are talking to */
 void getNames(int sockfd)
 {
-	printf("Enter a username.  ");
+
+	printf("Welcome to the Instant Messaging Program!\n");
+	printf("Enter '#q' to quit at any time.\n");
+	printf("Please enter your username:  ");
+	fflush(stdout);
 	scanf("%s", nameBuff);
+
 	write(sockfd,nameBuff,sizeof(nameBuff));
 	bzero(otherNameBuff,sizeof(otherNameBuff));
+
 	read(sockfd,otherNameBuff,sizeof(otherNameBuff));
-	printf("You are connected with %s.", otherNameBuff);
+	printf("You are connected with %s.\n", otherNameBuff);
+	fflush(stdout);
 }
 
+
+/*  Method that contols input and output of client */
 void func(int sockfd)
 {
-	closed = false;
 	int n;
+
+	//Call the fork
 	pid_t pid = fork();
-	if(pid > 0) //output
+
+	//Code to receive message from server and print out into client
+	if(pid > 0)  
 	{
-		//sem_wait(&username_created);
+		//Variable to store timestamp
 		time_t mytime;
+		//String to store timestamp in correct format
 		char* c_time_string;
 
+		//This loop checks to see if the user on the server wants to exit
 		while(strncmp(buff,"#q",2)!=0)
 		{
-			//printf("\nClient output Loop");
-			//sleep(.25);
+			//Gets message from buffer
 			bzero(buff,sizeof(buff));
-
 			read(sockfd,buff,sizeof(buff));
-			mytime = time(NULL);
-			c_time_string = ctime(&mytime);
-			//if(strncmp(buff,"",MAX!=0))
-				printf("%s\tfrom $%s @ %s\n",buff, otherNameBuff, c_time_string);
-				//printf("%s",buff);
-				//printf("the buffer is not empty.\n");
-				sleep(1);
 
+			//Checks for case 1 and prints output
+			counter++;
+			if(counter != 1)
+			{
+				mytime = time(NULL);
+				c_time_string = ctime(&mytime);
+				printf("%s\tfrom $%s @ %s\n",buff, otherNameBuff, c_time_string);
+				fflush(stdout);
+			}	
+			sleep(1);
+			
+			//Exit call 
 			if(strncmp(buff,"#q",2)==0)
 				break;
 		}
+		//Closes socket
 		close(sockfd);
 		printf("The connection has been closed by the server.\n");
+		fflush(stdout);
 		kill(pid, SIGTERM);
 	}
-	else if(pid == 0) //input
+
+	//Code to send user input to server
+	else if(pid == 0) 
 	{
+		//Variable to store timestamp
 		time_t mytime;
+		//String to store timestamp in correct format
 		char* c_time_string;
+	
+		//This loop checks to see if the user on the client wants to exit
 		while(strncmp(buff,"#q",2)!=0)
 		{
-			//sleep(.25);
-			//if(strncmp(buff,"#q",2)!=0)
-				//printf("Didnt quit");
+			
 			bzero(buff,sizeof(buff));
+			
+			//Checks for both special cases and writes user input to buffer
+			if(counter != 1)
+			{
+				n=0;
+				while((buff[n++]=getchar())!='\n');
+				write(sockfd,buff,sizeof(buff));
 
+				mytime = time(NULL);
+				c_time_string = ctime(&mytime);
 
-			//printf("Your name is %s",nameBuff);
-			printf("\n");
+				//Special case 2
+				if(counter2 != 0)
+				{
+					printf("\tfrom $%s @ %s", nameBuff, c_time_string);
+					fflush(stdout);
+				}			
 
-			n=0;
-			while((buff[n++]=getchar())!='\n');
-			write(sockfd,buff,sizeof(buff));
-			mytime = time(NULL);
-			c_time_string = ctime(&mytime);
-			printf("\tfrom $%s @ %s", nameBuff, c_time_string);
+			}
+			counter2++;
 		}
+		//Closes socket
 		close(sockfd);
 		printf("The connection has been closed by the client.");
+		fflush(stdout);
 		kill(pid,SIGTERM);
 	}
+
+	//Closes socket outside of fork
 	close(sockfd);
 }
 
+
+/* Code to take care of creating a client and connecting to the server */
 int main()
 {
 	int sockfd,connfd;
 	struct sockaddr_in servaddr,cli;
 	sockfd=socket(AF_INET,SOCK_STREAM,0);
+
+	//Checks for successful socket creation
 	if(sockfd==-1)
 	{
-		printf("socket creation failed...\n");
+		printf("Socket creation failed...\n");
 		exit(0);
 	}
 	else
@@ -109,18 +161,18 @@ int main()
 	servaddr.sin_family=AF_INET;
 	servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
 	servaddr.sin_port=htons(PORT);
+
+	//Checks for successful connection of client to server
 	if(connect(sockfd,(SA *)&servaddr,sizeof(servaddr))!=0)
 	{
-		printf("connection with the server failed...\n");
+		printf("Connection with the server failed...\n");
 		exit(0);
 	}
 	else
-		printf("connected to the server..\n");
+		printf("Connected to the server..\n");
 
-	//printf("Instant Messaging Program\n\n");
+	//Runs methods
 	getNames(sockfd);
-	//sem_init(&username_created,1,0);
 	func(sockfd);
 	close(sockfd);
-	//printf("The connection has been closed.\n");
 }
