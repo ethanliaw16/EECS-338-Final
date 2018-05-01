@@ -20,9 +20,9 @@ output, and Alan worked on the design document.
 Our sample output that will theoretically happen is included in the ExampleOutput.txt
 file. We are also considering adding the possibility of a three-way chat. 
 
-ChatClient and Chatserver are our first version of this program. They have usernames and datetime implemented. In this version, the client program must initiate the communication (i.e. he must send the first message). In addition, the client and server must alternate in sending messages. The option of entering '#q' to disconnect is implemented in the server program, however, there are several bugs in the client program that cause the program to fail to disconnect.
+ChatClient and ChatServer are our first version of this program. They have usernames and datetime implemented. In this version, the client program must initiate the communication (i.e. he must send the first message). In addition, the client and server must alternate in sending messages. The option of entering '#q' to disconnect is implemented in the server program, however, there are several bugs in the client program that cause the program to fail to disconnect.
 
-Version two consists of TwoWaySender and TwoWayGetter. They also have usernames and datetime implemented. In addition, either program can send the first message, and the option of sending consecutive messages is allowed. To implement these two features, we used a fork call in order to make writing and reading data independent processes. The disconnect with '#q' feature is also implemented in both programs. Currently, the implementation of this feature is highly inefficient, relying on break statements and the kill() function call for child process cleanup. 
+Version two consists of Server and Client. They also have usernames and datetime implemented. In addition, either program can send the first message, and the option of sending consecutive messages is allowed. To implement these two features, we used a fork call in order to make writing and reading data independent processes. The disconnect with '#q' feature is also implemented in both programs. Currently, the implementation of this feature is highly inefficient, relying on break statements and the kill() function call for child process cleanup. 
 
 
 ## Final Version Design Document:
@@ -32,10 +32,10 @@ The project we created is an instant messaging program. Using socket communicati
 
 ### Files:
 
-TwoWaySender
+Server
 -This file consists of the "server" side of this instant messaging program. It runs very simlar to the client, with the key difference being that the server creates the port and address for the client to connect to. Also, the server uses the "closed" boolean while the client does not.
 
-TwoWayGetter
+Client
 -This file consists of the "client" side of this instant messaging program. It runs very similarly to the server, except for the fact that it only needs to connect to the server, as well as a switched format for what the child and parent does in the fork. 
 
 
@@ -45,10 +45,10 @@ char buff[]
 -This array buffer is used for holding the messages that users send to each other. It is written and read to via socket communication. Its size is controlled by the directive MAX, currently set at 80.
 
 char nameBuff[]
--This array buffer is used for holding the username for the user within its file. If its in the TwoWayGetter, it is holding the client username, and if its in the TwoWaySender, it is holding the server username. Its size is also controlled by the directive MAX, currently set at 80.
+-This array buffer is used for holding the username for the user within its file. If its in the Client, it is holding the client username, and if its in the Server, it is holding the server username. Its size is also controlled by the directive MAX, currently set at 80.
 
 char otherNameBuff[]
--This array buffer is used for holding the username for whoever the user within its file is talking to. If its in the TwoWayGetter, it is holding the server username, and if its in the TwoWaySender, it is holding the client username.
+-This array buffer is used for holding the username for whoever the user within its file is talking to. If its in the Client, it is holding the server username, and if its in the Server, it is holding the client username.
 
 int counter 
 int counter2
@@ -60,7 +60,7 @@ int n
 ### Sample Output:
 
 ```
-~$ ./TwoWaySender
+~$ ./Server
 Socket successfully created..
 Socket successfully binded..
 Server listening..
@@ -88,7 +88,7 @@ The connection has been closed by the server.
 
 
 
-~$ ./TwoWayGetter
+~$ ./Client
 Socket successfully created..
 Connected to the server
 Welcome to the Instant Messaging Program!
@@ -116,6 +116,7 @@ The connection has been closed by the server.
 ### Distribution of Work
 Ethan:
 Worked on the primary format of the code, drafted the majority of the functions and methodology of project.
+
 Alan:
 Did most of the debugging, fixing up and commenting the code, as well as writing the design document. 
 
